@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState  } from 'react';
+import ContactPDF from './ContactPDF';
 
 import {
     Button,
@@ -12,13 +13,15 @@ import {
 } from '@mui/material';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { removeContact, getAllcontacts } from '../redux/contactSlice';
+import { removeContact, getAllcontacts, sortContact } from '../redux/contactSlice';
 import Filter from './Filter';
 
 const ContactsList = ({ handleOpen, setCurrentContactId }) => {
     const { contacts, isLoading } = useSelector((state) => state.contactsReducer);
+    const [selectedContact, setSelectedContact] = useState(null);
+    const [sortConfig, setSortConfig] = useState({ key: '', direction: 'asc' });
     const dispatch = useDispatch();
-    console.log('contacts', contacts);
+    
 
     useEffect(() => {
         dispatch(getAllcontacts());
@@ -33,6 +36,17 @@ const ContactsList = ({ handleOpen, setCurrentContactId }) => {
         setCurrentContactId(id);
         handleOpen();
     };
+    const handleDownloadContact = (contact) => {
+        setSelectedContact(contact);
+      };
+    
+    const handleSortContacts = (key) => {
+        const direction = sortConfig.key === key && sortConfig.direction === 'asc' ? 'desc' : 'asc';
+        setSortConfig({ key, direction });
+        dispatch(sortContact(key, direction));
+        
+    };
+
     if (isLoading) {
         return <p> Contacts loading......</p>;
     }
@@ -47,14 +61,32 @@ const ContactsList = ({ handleOpen, setCurrentContactId }) => {
             <TableContainer sx={{ maxHeight: '800px' }} component={Paper}>
                 <Table stickyHeader aria-label='simple table'>
                     <TableHead>
-                        <TableRow>
-                            <TableCell>Photo</TableCell>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Phone</TableCell>
-                            <TableCell>Address</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell></TableCell>
-                        </TableRow>
+                    <TableRow>
+                    <TableCell>
+                        Photo
+                    </TableCell>
+                    <TableCell>
+                        <button onClick={() => handleSortContacts('name')}>
+                            Name
+                        </button>
+                    </TableCell>
+                    <TableCell>
+                        
+                            Phone
+                     
+                    </TableCell>
+                    <TableCell>
+                       
+                            Address
+                       
+                    </TableCell>
+                    <TableCell>
+                       
+                            Email
+                       
+                    </TableCell>
+                    <TableCell></TableCell>
+                </TableRow>
                     </TableHead>
                     <TableBody>
                         {contacts.map((contact) => (
@@ -81,13 +113,20 @@ const ContactsList = ({ handleOpen, setCurrentContactId }) => {
                                         {' '}
                                         edit
                                     </button>{' '}
+                                    <button onClick={() => handleDownloadContact(contact)}> 
+                                    {' '}
+                                    Download 
+                                    </button>
                                 </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
+                {selectedContact && <ContactPDF contact={selectedContact} />}
             </TableContainer>
+            
         </div>
+        
     );
 };
 

@@ -5,19 +5,36 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
     try {
-        const contacts = await Contact.find();
+        const contacts = await Contact
+        .find()
+        .sort({name : 1})
         res.send(contacts);
     } catch (error) {
         res.send({ message: error.message });
     }
 });
 
+router.get('/sort', async(req, res) => {
+    const { key, direction } = req.query;
+
+    // Assuming your contacts data is stored in an array called 'contacts'
+     const sortedContacts = await Contact
+     .find()
+     .sort({name : 1})
+     console.log(sortedContacts);
+
+    res.send(sortedContacts);
+});
+
 router.post('/', async (req, res) => {
     const { name, email, phoneNo, address, selectedImage } = req.body;
     let contactEntry = new Contact({ name, email, phoneNo, address, selectedImage });
-
+     
     try {
         await contactEntry.save();
+        Contact
+        .find()
+        .sort({name : 1})
         res.send(contactEntry);
     } catch (error) {
         res.send({ message: error.message });

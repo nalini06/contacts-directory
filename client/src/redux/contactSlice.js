@@ -16,6 +16,8 @@ export const addContact = createAsyncThunk(
     }
 );
 
+
+
 export const getAllcontacts = createAsyncThunk(
     'contacts/getcontacts',
     async (_, { rejectWithValue }) => {
@@ -43,6 +45,8 @@ export const removeContact = createAsyncThunk(
     }
 );
 
+
+
 export const updateContact = createAsyncThunk(
     'contacts/updatecontacts',
     async (toBeUpdatedContact, { rejectWithValue }) => {
@@ -59,6 +63,25 @@ export const updateContact = createAsyncThunk(
         }
     }
 );
+
+export const sortContact = createAsyncThunk(
+   'contacts/sort',
+   async (toBeSorted, {rejectWithValue}) => {
+    try {
+        console.log("Rreq here");
+        const response = await axios.get(`/contacts/sort?key=${"name"}&direction=${"asc"}`);
+       // const data = await response.json();
+        toast.success("Contacts has been sorted")
+        console.log(response.data);
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error.message);
+    }
+}
+);
+
+
+
 
 const initialState = {
     contacts: [],
@@ -133,6 +156,12 @@ const contactsSlice = createSlice({
             .addCase(updateContact.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
+            })
+            .addCase(sortContact.fulfilled, (state, action) => {
+                state.contacts = action.payload;
+                console.log("in slice" + action.payload);
+                state.filteredContacts = action.payload;
+                state.error = null;
             });
     },
 });
